@@ -7,11 +7,13 @@ export function Terminal() {
   const [terminalStep, setTerminalStep] = useState(0);
   const [copied, setCopied] = useState(false);
   const terminalSteps = [
-    'git clone https://github.com/Wuyxin/collabllm.git',
-    'cd collabllm/',
     'conda create -n collabllm python=3.10',
     'pip install collabllm',
-    'from collabllm.reward import multiturn_aware_reward',
+    '',
+    'git clone https://github.com/Wuyxin/collabllm.git',
+    'cd collabllm/',
+    'python -m scripts.data_gen.multiturn_dataset <...>',
+    'python -m scripts.train.{sft/*_dpo/ppo} <...>',
   ];
 
   useEffect(() => {
