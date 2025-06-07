@@ -1,5 +1,10 @@
 # Next.js SaaS Starter
 
+```
+conda install nodejs -y
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
 This is a starter template for building a SaaS application using **Next.js** with support for authentication, Stripe integration for payments, and a dashboard for logged-in users.
 
 **Demo: [https://next-saas-start.vercel.app/](https://next-saas-start.vercel.app/)**
@@ -27,7 +32,7 @@ This is a starter template for building a SaaS application using **Next.js** wit
 ## Getting Started
 
 ```bash
-git clone https://github.com/nextjs/saas-starter
+git clone https://github.com/Wuyxin/collabllm.git
 cd saas-starter
 pnpm install
 ```
