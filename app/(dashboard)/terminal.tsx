@@ -8,11 +8,10 @@ export function Terminal() {
   const [copied, setCopied] = useState(false);
   const terminalSteps = [
     'git clone https://github.com/Wuyxin/collabllm.git',
-    'pnpm install',
-    'pnpm db:setup',
-    'pnpm db:migrate',
-    'pnpm db:seed',
-    'pnpm dev 🎉',
+    'cd collabllm/',
+    'conda create -n collabllm python=3.10',
+    'pip install collabllm',
+    'from collabllm.reward import multiturn_aware_reward',
   ];
 
   useEffect(() => {

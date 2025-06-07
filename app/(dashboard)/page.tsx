@@ -8,20 +8,18 @@ export default function HomePage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-            <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-8 lg:text-left">
+            <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-7 lg:text-left">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
-                From Passive Responders to 
+                Make Your LLMs
                 <span className="block text-orange-500">Active Collaborators</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                Launch your SaaS product in record time with our powerful,
-                ready-to-use template. Packed with modern technologies and
-                essential integrations.
-                
+              CollabLLM is a unified fine-tuning framework that optimizes LLMs for 
+              effective and efficient multiturn collaboration with users.
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <a
-                  href="https://vercel.com/templates/next.js/next-js-saas-starter"
+                  href="https://huggingface.co/spaces/collabllm/CollabLLM-Llama-3.1-8B-Instruct"
                   target="_blank"
                 >
                   <Button
@@ -29,13 +27,13 @@ export default function HomePage() {
                     variant="outline"
                     className="text-lg rounded-full"
                   >
-                    Deploy your own
+                    Chat with CollabLLM (to be enabled)
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </a>
               </div>
             </div>
-            <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-4 lg:flex lg:items-center">
+            <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-5 lg:flex lg:items-center">
               <Terminal />
             </div>
           </div>
@@ -56,11 +54,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Next.js and React
+                  What is missing from current LLMs?
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Leverage the power of modern web technologies for optimal
-                  performance and developer experience.
+                  LLMs act as passive responders, especially when faced with ambiguous inputs. They don't naturally help users explore their needs in multiturn interations or offer suggestions for next steps.
                 </p>
               </div>
             </div>
@@ -71,11 +68,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Postgres and Drizzle ORM
+                  Why do LLMs fail to understand users?
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Robust database solution with an intuitive ORM for efficient
-                  data management and scalability.
+                Most LLMs are tuned based on single-turn human preferences. These single-turn rewards encourage models to generate response that may NOT be useful in the long term.
                 </p>
               </div>
             </div>
@@ -86,11 +82,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Stripe Integration
+                  How do we build collaborative LLMs?
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Seamless payment processing and subscription management with
-                  industry-leading Stripe integration.
+                CollabLLM rewards LLMs responses based on their long-term impact on the conversation. By finetune LLMs using these long-term, interaction-level rewards, they actively seek information and collaborate more effectively with users.
                 </p>
               </div>
             </div>
@@ -103,12 +98,11 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                Ready to launch your SaaS?
+                Ready to make your LLMs collaborative?
               </h2>
               <p className="mt-3 max-w-3xl text-lg text-gray-500">
-                Our template provides everything you need to get your SaaS up
-                and running quickly. Don't waste time on boilerplate - focus on
-                what makes your product unique.
+                Our code makes it easy for you to get more collaborative LLMs on your own tasks. 
+                Don't waste time interacting with LLMs that fail to understand your need, start building collaborative LLMs!
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
@@ -118,7 +112,7 @@ export default function HomePage() {
                   variant="outline"
                   className="text-lg rounded-full"
                 >
-                  View the code
+                  View code on Github
                   <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
               </a>
