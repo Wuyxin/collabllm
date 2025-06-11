@@ -5,14 +5,50 @@ import { Terminal } from './terminal';
 export default function HomePage() {
   return (
     <main>
-      <section className="py-20">
+      <section className="py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Paper Title and Authors Section */}
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl mb-6">
+              CollabLLM: From Passive Responders to Active Collaborators
+            </h1>
+            
+            <div className="text-xl text-gray-600 mb-2 max-w-5xl mx-auto leading-relaxed">
+              <div className="mb-1">
+                <a href="https://cs.stanford.edu/~shirwu/" className="text-blue-400 hover:text-blue-400 transition-colors">Shirley Wu</a><sup className="text-orange-500">1</sup>,{' '}
+                <a href="https://www.microsoft.com/en-us/research/people/mgalley/" className="text-blue-400 hover:text-blue-400 transition-colors">Michel Galley</a><sup className="text-orange-500">2</sup>,{' '}
+                <a href="https://www.microsoft.com/en-us/research/people/baolinpeng/" className="text-blue-400 hover:text-blue-400 transition-colors">Baolin Peng</a><sup className="text-orange-500">2</sup>,{' '}
+                <a href="https://sites.google.com/site/hcheng2site" className="text-blue-400 hover:text-blue-400 transition-colors">Hao Cheng</a><sup className="text-orange-500">2</sup>,{' '}
+                <a href="https://scholar.google.com/citations?user=jJglcU8AAAAJ&hl=en" className="text-blue-400 hover:text-blue-400 transition-colors">Gavin Li</a><sup className="text-orange-500">1</sup>,{' '}
+                <a href="https://yao-dou.github.io/" className="text-blue-400 hover:text-blue-400 transition-colors">Yao Dou</a><sup className="text-orange-500">3</sup>,{' '}
+                <a href="https://www.linkedin.com/in/wilsoncai" className="text-blue-400 hover:text-blue-400 transition-colors">Weixin Cai</a><sup className="text-orange-500">1</sup>
+              </div>
+              <div>
+                <a href="https://www.james-zou.com/" className="text-blue-400 hover:text-blue-400 transition-colors">James Zou</a><sup className="text-orange-500">1</sup>,{' '}
+                <a href="https://cs.stanford.edu/people/jure/" className="text-blue-400 hover:text-blue-400 transition-colors">Jure Leskovec</a><sup className="text-orange-500">1</sup>,{' '}
+                <a href="https://www.microsoft.com/en-us/research/people/jfgao/" className="text-blue-400 hover:text-blue-400 transition-colors">Jianfeng Gao</a><sup className="text-orange-500">2</sup>
+              </div>
+            </div>
+            
+            <div className="text-xl text-black-500 mb-4">
+              <sup className="text-orange-500">1</sup>Stanford University, <sup className="text-orange-500">2</sup>Microsoft, <sup className="text-orange-500">3</sup>Georgia Tech
+            </div>
+            
+            <div className="text-xl font-semibold">
+              <span className="text-orange-500">ICML 2025 Oral (1.0% out of all submissions)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20  bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-7 lg:text-left">
-              <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
+              <h2 className="text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl mb-4">
                 Make Your LLMs
                 <span className="block text-orange-500">Active Collaborators</span>
-              </h1>
+              </h2>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
               CollabLLM is a unified fine-tuning framework that optimizes LLMs for 
               effective and efficient multiturn collaboration with users.
@@ -40,7 +76,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-white w-full">
+      <section className="py-16 bg-gray-50 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
             <div>
@@ -93,7 +129,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div>

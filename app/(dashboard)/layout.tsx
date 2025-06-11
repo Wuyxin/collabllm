@@ -34,6 +34,9 @@ function UserMenu() {
       >
       </Link>
       <Button asChild className="rounded-full">
+        <Link href="https://github.com/Wuyxin/collabllm">Build CollabLLM on Github</Link>
+      </Button>
+      <Button asChild className="rounded-full">
         <Link href="https://cs.stanford.edu/~shirwu/files/collabllm_v1.pdf">Read Paper (Oral @ ICML 2025)</Link>
       </Button>
     </>

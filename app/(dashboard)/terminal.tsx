@@ -8,11 +8,11 @@ export function Terminal() {
   const [copied, setCopied] = useState(false);
   const terminalSteps = [
     'conda create -n collabllm python=3.10',
+    'conda activate collabllm',
     'pip install collabllm',
     '',
     'git clone https://github.com/Wuyxin/collabllm.git',
-    'cd collabllm/',
-    'python -m scripts.data_gen.multiturn_dataset <...>',
+    'python -m scripts.engine.build_dataset <...>',
     'python -m scripts.train.{sft/*_dpo/ppo} <...>',
   ];
 
