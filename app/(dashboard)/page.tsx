@@ -141,7 +141,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Quote 1 */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="text-orange-500 text-3xl mb-4">&ldquo;Efficient</div>
+                <div className="text-orange-500 text-2xl mb-4">&ldquo;Efficient</div>
                 <p className="text-gray-600 italic mb-4">
                 I was surprised by the first response. I was expecting a quick summary related to my prompt, but instead the AI asked me some questions. 
                 I think this style worked well. 
@@ -152,7 +152,7 @@ export default function HomePage() {
               </div>
               {/* Quote 2 */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="text-orange-500 text-3xl mb-4">&ldquo;Stimulate Creativity</div>
+                <div className="text-orange-500 text-2xl mb-4">&ldquo;Stimulate Creativity</div>
                 <p className="text-gray-600 italic mb-4">
                 Asking questions and making you think of things you <strong>never thought of</strong>.
                 </p>
@@ -168,7 +168,7 @@ export default function HomePage() {
 
               {/* Quote 3 */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="text-orange-500 text-3xl mb-4">&ldquo;More Safe</div>
+                <div className="text-orange-500 text-2xl mb-4">&ldquo;More Safe</div>
                 <p className="text-gray-600 italic mb-4">
                 The AI assistant told me why it <strong>wouldn't be helpful</strong> for this case.
                 </p>
