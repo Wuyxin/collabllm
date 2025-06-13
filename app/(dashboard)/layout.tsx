@@ -50,7 +50,7 @@ function UserMenu() {
       <Button asChild className="rounded-full">
         <Link href="https://arxiv.org/pdf/2502.00640" className="flex items-center gap-2">
           <FileText size={16} />
-          Read Paper
+          Paper
         </Link>
       </Button>
     </>
