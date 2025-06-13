@@ -35,7 +35,7 @@ export default function HomePage() {
             </div>
             
             <div className="text-xl font-bold">
-              <span className="text-orange-600">ICML 2025 Oral (1.0% / all submissions)</span>
+              <span className="text-orange-600">ICML 2025 Oral (1.0% of all submissions)</span>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-left">
             <h2 className="text-3xl font-bold text-gray-700 tracking-tight sm:text-4xl mb-8">
-              What Users Are Saying
+              What Users Said
               <span className=" text-orange-500"> About CollabLLM</span>
             </h2>
             
@@ -186,7 +186,7 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-700 sm:text-4xl">
-                Ready to make your LLMs collaborative?
+                Ready to Make Your LLMs <span className=" text-orange-500"> Collaborative?</span>
               </h2>
               <p className="mt-3 max-w-3xl text-lg text-gray-500">
                 Our code makes it easy for you to get more collaborative LLMs on your own tasks. 
