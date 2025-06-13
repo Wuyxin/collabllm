@@ -1,5 +1,7 @@
 'use client';
 
+import { Github, BookOpen, FileText } from "lucide-react";
+
 import Link from 'next/link';
 import { use, useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
@@ -34,14 +36,25 @@ function UserMenu() {
       >
       </Link>
       <Button asChild className="rounded-full">
-        <Link href="https://github.com/Wuyxin/collabllm">Build CollabLLM on Github</Link>
+        <Link href="https://github.com/Wuyxin/collabllm" className="flex items-center gap-2">
+          <Github size={16} />
+          Github
+        </Link>
       </Button>
       <Button asChild className="rounded-full">
-        <Link href="https://cs.stanford.edu/~shirwu/files/collabllm_v1.pdf">Read Paper (Oral @ ICML 2025)</Link>
+        <Link href="#blog" className="flex items-center gap-2">
+          <BookOpen size={16} />
+          Blog
+        </Link>
+      </Button>
+      <Button asChild className="rounded-full">
+        <Link href="https://arxiv.org/pdf/2502.00640" className="flex items-center gap-2">
+          <FileText size={16} />
+          Read Paper
+        </Link>
       </Button>
     </>
   );
-
 }
 
 function Header() {
