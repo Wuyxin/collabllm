@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -7,7 +6,38 @@ import { ArrowRight, CreditCard, Database, Calendar, User, Clock, Eye, Heart, Th
 
 import { Terminal } from './terminal';
 
-// // Reset all CollabLLM data
+// Type definitions
+interface VisitorSession {
+  visitorId: string;
+  firstVisit: number;
+  lastActivity: number;
+}
+
+interface Reactions {
+  heart: number;
+  thumbsUp: number;
+  share: number;
+}
+
+type ReactionType = keyof Reactions;
+
+type SharePlatform = 'twitter' | 'linkedin' | 'slack' | 'email' | 'copy';
+
+interface ShareUrls {
+  twitter: string;
+  linkedin: string;
+  slack: string;
+  email: string;
+}
+
+interface ReactionButton {
+  type: ReactionType;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  color: string;
+  label: string;
+}
+
+// Reset all CollabLLM data
 // localStorage.removeItem('collabllm_view_count');
 // localStorage.removeItem('collabllm_reactions');
 // localStorage.removeItem('collabllm_user_reactions');
@@ -16,20 +46,32 @@ import { Terminal } from './terminal';
 // console.log('✅ All CollabLLM data reset!');
 // location.reload(); // Refresh the page
 
+
 // Viewer System Component with Persistent Storage
 const ViewerSystem = () => {
-  const [viewCount, setViewCount] = useState(0);
-  const [reactions, setReactions] = useState({
+  const [viewCount, setViewCount] = useState<number>(0);
+  const [reactions, setReactions] = useState<Reactions>({
     heart: 0,
     thumbsUp: 0,
     share: 0
   });
-  const [userReactions, setUserReactions] = useState(new Set());
-  const [showReactionAnimation, setShowReactionAnimation] = useState(null);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [uniqueVisitorId] = useState(() => {
-    // Generate unique visitor ID
-    return 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  const [userReactions, setUserReactions] = useState<Set<string>>(new Set());
+  const [showReactionAnimation, setShowReactionAnimation] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
+  const [isLocalStorageAvailable, setIsLocalStorageAvailable] = useState<boolean>(true);
+  
+  // Generate or retrieve persistent visitor ID
+  const [uniqueVisitorId] = useState<string>(() => {
+    try {
+      let visitorId = localStorage.getItem('collabllm_visitor_id');
+      if (!visitorId) {
+        visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        localStorage.setItem('collabllm_visitor_id', visitorId);
+      }
+      return visitorId;
+    } catch {
+      return 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    }
   });
 
   // Storage keys
@@ -38,25 +80,63 @@ const ViewerSystem = () => {
     reactions: 'collabllm_reactions',
     userReactions: 'collabllm_user_reactions',
     lastVisit: 'collabllm_last_visit',
-    visitorSessions: 'collabllm_visitor_sessions'
+    visitorSessions: 'collabllm_visitor_sessions',
+    visitorId: 'collabllm_visitor_id'
+  };
+
+  // Helper function to safely use localStorage
+  const safeLocalStorage = {
+    getItem: (key: string): string | null => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    setItem: (key: string, value: string): boolean => {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    removeItem: (key: string): boolean => {
+      try {
+        localStorage.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    }
   };
 
   // Initialize data from localStorage and track visitor
   useEffect(() => {
+    // Check localStorage availability
+    try {
+      const testKey = '__localStorage_test__';
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+      setIsLocalStorageAvailable(true);
+    } catch {
+      setIsLocalStorageAvailable(false);
+      console.warn('LocalStorage not available, using memory storage');
+    }
+
+    if (!isLocalStorageAvailable) {
+      // Set default values for non-localStorage environment
+      setViewCount(1);
+      setReactions({ heart: 0, thumbsUp: 0, share: 0 });
+      return;
+    }
+
     try {
       // Load existing data or set defaults
-      const savedViewCount = localStorage.getItem(STORAGE_KEYS.viewCount);
-      const savedReactions = localStorage.getItem(STORAGE_KEYS.reactions);
-      const savedUserReactions = localStorage.getItem(STORAGE_KEYS.userReactions);
-      const savedVisitorSessions = localStorage.getItem(STORAGE_KEYS.visitorSessions);
-      
-      // Set view count from storage or start at 1
-      if (savedViewCount) {
-        setViewCount(parseInt(savedViewCount));
-      } else {
-        setViewCount(1);
-        localStorage.setItem(STORAGE_KEYS.viewCount, '1');
-      }
+      const savedViewCount = safeLocalStorage.getItem(STORAGE_KEYS.viewCount);
+      const savedReactions = safeLocalStorage.getItem(STORAGE_KEYS.reactions);
+      const savedUserReactions = safeLocalStorage.getItem(STORAGE_KEYS.userReactions);
+      const savedVisitorSessions = safeLocalStorage.getItem(STORAGE_KEYS.visitorSessions);
       
       // Set reactions from storage or start at 0
       if (savedReactions) {
@@ -70,7 +150,7 @@ const ViewerSystem = () => {
       } else {
         const initialReactions = { heart: 0, thumbsUp: 0, share: 0 };
         setReactions(initialReactions);
-        localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(initialReactions));
+        safeLocalStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(initialReactions));
       }
       
       if (savedUserReactions) {
@@ -78,90 +158,96 @@ const ViewerSystem = () => {
         setUserReactions(new Set(userReactionArray));
       }
 
-      // Track unique visitors
-      const visitorSessions = savedVisitorSessions ? JSON.parse(savedVisitorSessions) : [];
+      // Track unique visitors with improved logic
+      const visitorSessions: VisitorSession[] = savedVisitorSessions ? JSON.parse(savedVisitorSessions) : [];
       const now = Date.now();
       const sessionTimeout = 30 * 60 * 1000; // 30 minutes
       
       // Clean old sessions
-      const activeSessions = visitorSessions.filter(session => 
+      const activeSessions = visitorSessions.filter((session: VisitorSession) => 
         now - session.lastActivity < sessionTimeout
       );
       
       // Check if this visitor has an active session
-      const existingSession = activeSessions.find(session => 
+      const existingSession = activeSessions.find((session: VisitorSession) => 
         session.visitorId === uniqueVisitorId
       );
       
       if (!existingSession) {
-        // New visitor or expired session
+        // New visitor or expired session - increment view count
         activeSessions.push({
           visitorId: uniqueVisitorId,
           firstVisit: now,
           lastActivity: now
         });
         
-        // Increment view count for new visitor
         const currentCount = savedViewCount ? parseInt(savedViewCount) : 0;
         const newViewCount = currentCount + 1;
         setViewCount(newViewCount);
-        localStorage.setItem(STORAGE_KEYS.viewCount, newViewCount.toString());
+        safeLocalStorage.setItem(STORAGE_KEYS.viewCount, newViewCount.toString());
       } else {
-        // Update existing session
+        // Existing visitor - just update activity and load current view count
         existingSession.lastActivity = now;
+        setViewCount(savedViewCount ? parseInt(savedViewCount) : 1);
       }
       
       // Save updated sessions
-      localStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(activeSessions));
-      localStorage.setItem(STORAGE_KEYS.lastVisit, now.toString());
+      safeLocalStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(activeSessions));
+      safeLocalStorage.setItem(STORAGE_KEYS.lastVisit, now.toString());
       
     } catch (error) {
-      console.warn('LocalStorage not available, using memory storage:', error);
-      // Fallback to default values when localStorage is not available
+      console.warn('Error initializing viewer data:', error);
+      // Fallback to default values
       setViewCount(1);
       setReactions({ heart: 0, thumbsUp: 0, share: 0 });
     }
-  }, [uniqueVisitorId]);
+  }, [uniqueVisitorId, isLocalStorageAvailable]);
 
-  // Periodic updates - simulate real-time activity
+  // Periodic updates - simulate real-time activity (reduced frequency and better logic)
   useEffect(() => {
+    if (!isLocalStorageAvailable) return;
+
     const interval = setInterval(() => {
       try {
-        const savedVisitorSessions = localStorage.getItem(STORAGE_KEYS.visitorSessions);
-        const now = Date.now();
-        const sessionTimeout = 30 * 60 * 1000; // 30 minutes
-        
-        if (savedVisitorSessions) {
-          const visitorSessions = JSON.parse(savedVisitorSessions);
-          const activeSessions = visitorSessions.filter(session => 
+        // Only simulate occasional new visitors, not frequent ones
+        if (Math.random() < 0.05) { // 5% chance every 30 seconds (reduced from 20% every 10 seconds)
+          const savedViewCount = safeLocalStorage.getItem(STORAGE_KEYS.viewCount);
+          const currentCount = savedViewCount ? parseInt(savedViewCount) : 0;
+          const increment = Math.floor(Math.random() * 2) + 1; // 1-2 new views
+          const newViewCount = currentCount + increment;
+          
+          setViewCount(newViewCount);
+          safeLocalStorage.setItem(STORAGE_KEYS.viewCount, newViewCount.toString());
+          
+          // Add simulated visitor sessions
+          const savedVisitorSessions = safeLocalStorage.getItem(STORAGE_KEYS.visitorSessions);
+          const visitorSessions: VisitorSession[] = savedVisitorSessions ? JSON.parse(savedVisitorSessions) : [];
+          const now = Date.now();
+          const sessionTimeout = 30 * 60 * 1000;
+          
+          // Clean old sessions first
+          const activeSessions = visitorSessions.filter((session: VisitorSession) => 
             now - session.lastActivity < sessionTimeout
           );
           
-          // Random chance to add new visitors (but no automatic reactions)
-          if (Math.random() < 0.2) { // 20% chance every 10 seconds
-            const newViewCount = viewCount + Math.floor(Math.random() * 2) + 1;
-            setViewCount(newViewCount);
-            localStorage.setItem(STORAGE_KEYS.viewCount, newViewCount.toString());
-            
-            // Add simulated visitor session
+          // Add new simulated sessions
+          for (let i = 0; i < increment; i++) {
             activeSessions.push({
-              visitorId: 'simulated_' + Math.random().toString(36).substr(2, 9),
+              visitorId: 'simulated_' + Math.random().toString(36).substr(2, 9) + '_' + now,
               firstVisit: now,
               lastActivity: now
             });
-            
-            localStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(activeSessions));
           }
           
-          // Removed automatic reaction simulation to keep reactions authentic
+          safeLocalStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(activeSessions));
         }
       } catch (error) {
         console.warn('Error updating visitor data:', error);
       }
-    }, 10000); // Check every 10 seconds
+    }, 30000); // Check every 30 seconds instead of 10
 
     return () => clearInterval(interval);
-  }, [viewCount]);
+  }, [isLocalStorageAvailable]);
 
   // Update last activity periodically
   useEffect(() => {
@@ -169,10 +255,10 @@ const ViewerSystem = () => {
       try {
         const savedVisitorSessions = localStorage.getItem(STORAGE_KEYS.visitorSessions);
         if (savedVisitorSessions) {
-          const visitorSessions = JSON.parse(savedVisitorSessions);
+          const visitorSessions: VisitorSession[] = JSON.parse(savedVisitorSessions);
           const now = Date.now();
           
-          const updatedSessions = visitorSessions.map(session => 
+          const updatedSessions = visitorSessions.map((session: VisitorSession) => 
             session.visitorId === uniqueVisitorId 
               ? { ...session, lastActivity: now }
               : session
@@ -188,7 +274,7 @@ const ViewerSystem = () => {
     return () => clearInterval(activityInterval);
   }, [uniqueVisitorId]);
 
-  const handleReaction = (reactionType) => {
+  const handleReaction = (reactionType: string) => {
     // Special handling for share - always increment and show social media options
     if (reactionType === 'share') {
       handleShare();
@@ -204,7 +290,7 @@ const ViewerSystem = () => {
         setReactions(prev => {
           const updated = {
             ...prev,
-            [reactionType]: Math.max(0, prev[reactionType] - 1)
+            [reactionType as keyof Reactions]: Math.max(0, prev[reactionType as keyof Reactions] - 1)
           };
           localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(updated));
           return updated;
@@ -215,7 +301,7 @@ const ViewerSystem = () => {
         setReactions(prev => {
           const updated = {
             ...prev,
-            [reactionType]: prev[reactionType] + 1
+            [reactionType as keyof Reactions]: prev[reactionType as keyof Reactions] + 1
           };
           localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(updated));
           return updated;
@@ -256,7 +342,7 @@ const ViewerSystem = () => {
     // Create share data
     const shareData = {
       title: 'CollabLLM: From Passive Responders to Active Collaborators',
-      text: 'Sharing the blog. Building the Future of Collaborative AI: Our Journey with CollabLLM - A unified fine-tuning framework that optimizes LLMs for effective multiturn collaboration.',
+      text: 'Sharing the blog: "Building the Future of Collaborative AI: Our Journey with CollabLLM" - A unified fine-tuning framework that optimizes LLMs for effective multiturn collaboration.',
       url: `${window.location.origin}${window.location.pathname}#blog`
     };
 
@@ -272,14 +358,14 @@ const ViewerSystem = () => {
     }
   };
 
-  const shareToSocial = (platform) => {
+  const shareToSocial = (platform: SharePlatform) => {
     const shareData = {
       title: 'CollabLLM: From Passive Responders to Active Collaborators',
-      text: 'Building the Future of Collaborative AI: Our Journey with CollabLLM - A unified fine-tuning framework that optimizes LLMs for effective multiturn collaboration.',
+      text: 'Sharing the blog: "Building the Future of Collaborative AI: Our Journey with CollabLLM" - A unified fine-tuning framework that optimizes LLMs for effective multiturn collaboration.',
       url: `${window.location.origin}${window.location.pathname}#blog`
     };
 
-    const shareUrls = {
+    const shareUrls: ShareUrls = {
       twitter: `https://twitter.com/messages/compose?text=${encodeURIComponent(`${shareData.text} ${shareData.url}`)}`,
       linkedin: `https://www.linkedin.com/messaging/`,
       slack: `slack://open`,
@@ -356,7 +442,7 @@ const ViewerSystem = () => {
       }
     } else {
       // Open other social media share URLs
-      const newWindow = window.open(shareUrls[platform], '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
+      const newWindow = window.open(shareUrls[platform as keyof ShareUrls], '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
       if (!newWindow) {
         alert('Pop-up blocked! Please allow pop-ups for sharing or copy the link manually.');
       }
@@ -426,7 +512,7 @@ const ViewerSystem = () => {
     );
   };
 
-  const reactionButtons = [
+  const reactionButtons: ReactionButton[] = [
     { type: 'heart', icon: Heart, color: 'text-red-500', label: 'Love' },
     { type: 'thumbsUp', icon: ThumbsUp, color: 'text-blue-500', label: 'Good' },
     { type: 'share', icon: Share2, color: 'text-green-500', label: 'Share' }
@@ -464,7 +550,7 @@ const ViewerSystem = () => {
                 size={16} 
                 className={userReactions.has(type) ? 'fill-current' : ''} 
               />
-              <span className="text-sm font-medium">{reactions[type] || 0}</span>
+              <span className="text-sm font-medium">{reactions[type as ReactionType] || 0}</span>
               
               {/* Animation overlay */}
               {showReactionAnimation === type && (
