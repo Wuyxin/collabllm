@@ -1,6 +1,490 @@
+
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CreditCard, Database, Calendar, User, Clock} from 'lucide-react';
+import { ArrowRight, CreditCard, Database, Calendar, User, Clock, Eye, Heart, ThumbsUp, Share2 } from 'lucide-react';
+
 import { Terminal } from './terminal';
+
+// // Reset all CollabLLM data
+// localStorage.removeItem('collabllm_view_count');
+// localStorage.removeItem('collabllm_reactions');
+// localStorage.removeItem('collabllm_user_reactions');
+// localStorage.removeItem('collabllm_visitor_sessions');
+// localStorage.removeItem('collabllm_last_visit');
+// console.log('✅ All CollabLLM data reset!');
+// location.reload(); // Refresh the page
+
+// Viewer System Component with Persistent Storage
+const ViewerSystem = () => {
+  const [viewCount, setViewCount] = useState(0);
+  const [reactions, setReactions] = useState({
+    heart: 0,
+    thumbsUp: 0,
+    share: 0
+  });
+  const [userReactions, setUserReactions] = useState(new Set());
+  const [showReactionAnimation, setShowReactionAnimation] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [uniqueVisitorId] = useState(() => {
+    // Generate unique visitor ID
+    return 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  });
+
+  // Storage keys
+  const STORAGE_KEYS = {
+    viewCount: 'collabllm_view_count',
+    reactions: 'collabllm_reactions',
+    userReactions: 'collabllm_user_reactions',
+    lastVisit: 'collabllm_last_visit',
+    visitorSessions: 'collabllm_visitor_sessions'
+  };
+
+  // Initialize data from localStorage and track visitor
+  useEffect(() => {
+    try {
+      // Load existing data or set defaults
+      const savedViewCount = localStorage.getItem(STORAGE_KEYS.viewCount);
+      const savedReactions = localStorage.getItem(STORAGE_KEYS.reactions);
+      const savedUserReactions = localStorage.getItem(STORAGE_KEYS.userReactions);
+      const savedVisitorSessions = localStorage.getItem(STORAGE_KEYS.visitorSessions);
+      
+      // Set view count from storage or start at 1
+      if (savedViewCount) {
+        setViewCount(parseInt(savedViewCount));
+      } else {
+        setViewCount(1);
+        localStorage.setItem(STORAGE_KEYS.viewCount, '1');
+      }
+      
+      // Set reactions from storage or start at 0
+      if (savedReactions) {
+        const loadedReactions = JSON.parse(savedReactions);
+        // Ensure all reaction types exist, even if they weren't in the saved data
+        setReactions({
+          heart: loadedReactions.heart || 0,
+          thumbsUp: loadedReactions.thumbsUp || 0,
+          share: loadedReactions.share || 0
+        });
+      } else {
+        const initialReactions = { heart: 0, thumbsUp: 0, share: 0 };
+        setReactions(initialReactions);
+        localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(initialReactions));
+      }
+      
+      if (savedUserReactions) {
+        const userReactionArray = JSON.parse(savedUserReactions);
+        setUserReactions(new Set(userReactionArray));
+      }
+
+      // Track unique visitors
+      const visitorSessions = savedVisitorSessions ? JSON.parse(savedVisitorSessions) : [];
+      const now = Date.now();
+      const sessionTimeout = 30 * 60 * 1000; // 30 minutes
+      
+      // Clean old sessions
+      const activeSessions = visitorSessions.filter(session => 
+        now - session.lastActivity < sessionTimeout
+      );
+      
+      // Check if this visitor has an active session
+      const existingSession = activeSessions.find(session => 
+        session.visitorId === uniqueVisitorId
+      );
+      
+      if (!existingSession) {
+        // New visitor or expired session
+        activeSessions.push({
+          visitorId: uniqueVisitorId,
+          firstVisit: now,
+          lastActivity: now
+        });
+        
+        // Increment view count for new visitor
+        const currentCount = savedViewCount ? parseInt(savedViewCount) : 0;
+        const newViewCount = currentCount + 1;
+        setViewCount(newViewCount);
+        localStorage.setItem(STORAGE_KEYS.viewCount, newViewCount.toString());
+      } else {
+        // Update existing session
+        existingSession.lastActivity = now;
+      }
+      
+      // Save updated sessions
+      localStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(activeSessions));
+      localStorage.setItem(STORAGE_KEYS.lastVisit, now.toString());
+      
+    } catch (error) {
+      console.warn('LocalStorage not available, using memory storage:', error);
+      // Fallback to default values when localStorage is not available
+      setViewCount(1);
+      setReactions({ heart: 0, thumbsUp: 0, share: 0 });
+    }
+  }, [uniqueVisitorId]);
+
+  // Periodic updates - simulate real-time activity
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const savedVisitorSessions = localStorage.getItem(STORAGE_KEYS.visitorSessions);
+        const now = Date.now();
+        const sessionTimeout = 30 * 60 * 1000; // 30 minutes
+        
+        if (savedVisitorSessions) {
+          const visitorSessions = JSON.parse(savedVisitorSessions);
+          const activeSessions = visitorSessions.filter(session => 
+            now - session.lastActivity < sessionTimeout
+          );
+          
+          // Random chance to add new visitors (but no automatic reactions)
+          if (Math.random() < 0.2) { // 20% chance every 10 seconds
+            const newViewCount = viewCount + Math.floor(Math.random() * 2) + 1;
+            setViewCount(newViewCount);
+            localStorage.setItem(STORAGE_KEYS.viewCount, newViewCount.toString());
+            
+            // Add simulated visitor session
+            activeSessions.push({
+              visitorId: 'simulated_' + Math.random().toString(36).substr(2, 9),
+              firstVisit: now,
+              lastActivity: now
+            });
+            
+            localStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(activeSessions));
+          }
+          
+          // Removed automatic reaction simulation to keep reactions authentic
+        }
+      } catch (error) {
+        console.warn('Error updating visitor data:', error);
+      }
+    }, 10000); // Check every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [viewCount]);
+
+  // Update last activity periodically
+  useEffect(() => {
+    const activityInterval = setInterval(() => {
+      try {
+        const savedVisitorSessions = localStorage.getItem(STORAGE_KEYS.visitorSessions);
+        if (savedVisitorSessions) {
+          const visitorSessions = JSON.parse(savedVisitorSessions);
+          const now = Date.now();
+          
+          const updatedSessions = visitorSessions.map(session => 
+            session.visitorId === uniqueVisitorId 
+              ? { ...session, lastActivity: now }
+              : session
+          );
+          
+          localStorage.setItem(STORAGE_KEYS.visitorSessions, JSON.stringify(updatedSessions));
+        }
+      } catch (error) {
+        console.warn('Error updating activity:', error);
+      }
+    }, 60000); // Update every minute
+
+    return () => clearInterval(activityInterval);
+  }, [uniqueVisitorId]);
+
+  const handleReaction = (reactionType) => {
+    // Special handling for share - always increment and show social media options
+    if (reactionType === 'share') {
+      handleShare();
+      return;
+    }
+
+    const newUserReactions = new Set(userReactions);
+    
+    try {
+      if (userReactions.has(reactionType)) {
+        // Remove reaction
+        newUserReactions.delete(reactionType);
+        setReactions(prev => {
+          const updated = {
+            ...prev,
+            [reactionType]: Math.max(0, prev[reactionType] - 1)
+          };
+          localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(updated));
+          return updated;
+        });
+      } else {
+        // Add reaction
+        newUserReactions.add(reactionType);
+        setReactions(prev => {
+          const updated = {
+            ...prev,
+            [reactionType]: prev[reactionType] + 1
+          };
+          localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(updated));
+          return updated;
+        });
+        
+        // Show animation
+        setShowReactionAnimation(reactionType);
+        setTimeout(() => setShowReactionAnimation(null), 500);
+      }
+      
+      setUserReactions(newUserReactions);
+      localStorage.setItem(STORAGE_KEYS.userReactions, JSON.stringify([...newUserReactions]));
+      
+    } catch (error) {
+      console.warn('Error saving reaction data:', error);
+    }
+  };
+
+  const handleShare = () => {
+    // Increment share count
+    setReactions(prev => {
+      const updated = {
+        ...prev,
+        share: prev.share + 1
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.reactions, JSON.stringify(updated));
+      } catch (error) {
+        console.warn('Error saving share data:', error);
+      }
+      return updated;
+    });
+
+    // Show animation
+    setShowReactionAnimation('share');
+    setTimeout(() => setShowReactionAnimation(null), 500);
+
+    // Create share data
+    const shareData = {
+      title: 'CollabLLM: From Passive Responders to Active Collaborators',
+      text: 'Sharing the blog. Building the Future of Collaborative AI: Our Journey with CollabLLM - A unified fine-tuning framework that optimizes LLMs for effective multiturn collaboration.',
+      url: `${window.location.origin}${window.location.pathname}#blog`
+    };
+
+    // Try native share API first (mobile devices)
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      navigator.share(shareData).catch(() => {
+        // Fallback to modal if native share fails
+        setShowShareModal(true);
+      });
+    } else {
+      // Desktop fallback - show share modal
+      setShowShareModal(true);
+    }
+  };
+
+  const shareToSocial = (platform) => {
+    const shareData = {
+      title: 'CollabLLM: From Passive Responders to Active Collaborators',
+      text: 'Building the Future of Collaborative AI: Our Journey with CollabLLM - A unified fine-tuning framework that optimizes LLMs for effective multiturn collaboration.',
+      url: `${window.location.origin}${window.location.pathname}#blog`
+    };
+
+    const shareUrls = {
+      twitter: `https://twitter.com/messages/compose?text=${encodeURIComponent(`${shareData.text} ${shareData.url}`)}`,
+      linkedin: `https://www.linkedin.com/messaging/`,
+      slack: `slack://open`,
+      email: `mailto:?subject=${encodeURIComponent(shareData.title)}&body=${encodeURIComponent(`${shareData.text}\n\n${shareData.url}`)}`
+    };
+
+    if (platform === 'copy') {
+      // Copy link to clipboard
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareData.url).then(() => {
+          alert('✅ Link copied to clipboard!');
+          setShowShareModal(false);
+        }).catch(() => {
+          // Fallback for clipboard API failure
+          const textArea = document.createElement('textarea');
+          textArea.value = shareData.url;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            alert('✅ Link copied to clipboard!');
+            setShowShareModal(false);
+          } catch (err) {
+            prompt('Copy this link manually:', shareData.url);
+          }
+          document.body.removeChild(textArea);
+        });
+      } else {
+        // Old browser fallback
+        prompt('Copy this link:', shareData.url);
+        setShowShareModal(false);
+      }
+    } else if (platform === 'linkedin') {
+      // Special handling for LinkedIn DM - copy message and open LinkedIn
+      const linkedinMessage = `${shareData.text}\n\n${shareData.url}`;
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(linkedinMessage).then(() => {
+          alert('✅ Message copied to clipboard! Opening LinkedIn...\n\nPaste the message in your DM.');
+          window.open(shareUrls.linkedin, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+          setShowShareModal(false);
+        }).catch(() => {
+          // Fallback
+          prompt('Copy this message for LinkedIn DM:', linkedinMessage);
+          window.open(shareUrls.linkedin, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+          setShowShareModal(false);
+        });
+      } else {
+        // Old browser fallback
+        prompt('Copy this message for LinkedIn DM:', linkedinMessage);
+        window.open(shareUrls.linkedin, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        setShowShareModal(false);
+      }
+    } else if (platform === 'slack') {
+      // Special handling for Slack - copy message and open Slack
+      const slackMessage = `${shareData.text}\n\n${shareData.url}`;
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(slackMessage).then(() => {
+          alert('✅ Message copied to clipboard! Opening Slack...\n\nPaste the message in any channel or DM.');
+          window.open(shareUrls.slack, '_blank');
+          setShowShareModal(false);
+        }).catch(() => {
+          // Fallback
+          prompt('Copy this message for Slack:', slackMessage);
+          window.open(shareUrls.slack, '_blank');
+          setShowShareModal(false);
+        });
+      } else {
+        // Old browser fallback
+        prompt('Copy this message for Slack:', slackMessage);
+        window.open(shareUrls.slack, '_blank');
+        setShowShareModal(false);
+      }
+    } else {
+      // Open other social media share URLs
+      const newWindow = window.open(shareUrls[platform], '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
+      if (!newWindow) {
+        alert('Pop-up blocked! Please allow pop-ups for sharing or copy the link manually.');
+      }
+      setShowShareModal(false);
+    }
+  };
+
+  // Share Modal Component
+  const ShareModal = () => {
+    if (!showShareModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowShareModal(false)}>
+        <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-lg" onClick={e => e.stopPropagation()}>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Share this article</h3>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => shareToSocial('twitter')}
+              className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            >
+              <div className="w-5 h-5 bg-blue-400 rounded"></div>
+              <span className="text-sm font-medium">Twitter DM</span>
+            </button>
+            
+            <button
+              onClick={() => shareToSocial('linkedin')}
+              className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            >
+              <div className="w-5 h-5 bg-blue-600 rounded"></div>
+              <span className="text-sm font-medium">LinkedIn DM</span>
+            </button>
+            
+            <button
+              onClick={() => shareToSocial('slack')}
+              className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-colors"
+            >
+              <div className="w-5 h-5 bg-purple-500 rounded"></div>
+              <span className="text-sm font-medium">Slack</span>
+            </button>
+            
+            <button
+              onClick={() => shareToSocial('email')}
+              className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            >
+              <div className="w-5 h-5 bg-gray-500 rounded"></div>
+              <span className="text-sm font-medium">Email</span>
+            </button>
+            
+            <button
+              onClick={() => shareToSocial('copy')}
+              className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors col-span-2"
+            >
+              <div className="w-5 h-5 bg-green-500 rounded"></div>
+              <span className="text-sm font-medium">Copy Link</span>
+            </button>
+          </div>
+          
+          <button
+            onClick={() => setShowShareModal(false)}
+            className="w-full mt-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const reactionButtons = [
+    { type: 'heart', icon: Heart, color: 'text-red-500', label: 'Love' },
+    { type: 'thumbsUp', icon: ThumbsUp, color: 'text-blue-500', label: 'Good' },
+    { type: 'share', icon: Share2, color: 'text-green-500', label: 'Share' }
+  ];
+
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3 border-y border-gray-100">
+        {/* Viewer Count */}
+        <div className="flex items-center gap-2 text-gray-600">
+          <Eye size={18} />
+          <span className="font-medium">{viewCount.toLocaleString()}</span>
+          <span className="text-sm">views</span>
+          <div className="hidden sm:block w-1 h-1 bg-green-500 rounded-full animate-pulse ml-1" title="Live updates enabled" />
+        </div>
+
+        {/* Reactions */}
+        <div className="flex items-center gap-2">
+          <span className="text-gray-600 text-sm mr-2">React:</span>
+          {reactionButtons.map(({ type, icon: Icon, color, label }) => (
+            <button
+              key={type}
+              onClick={() => handleReaction(type)}
+              className={`
+                relative flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all duration-200 hover:scale-105
+                ${userReactions.has(type) 
+                  ? `${color} bg-gray-50 border-current` 
+                  : 'text-gray-500 border-gray-300 hover:border-gray-400'
+                }
+                ${showReactionAnimation === type ? 'animate-pulse' : ''}
+              `}
+              title={label}
+            >
+              <Icon 
+                size={16} 
+                className={userReactions.has(type) ? 'fill-current' : ''} 
+              />
+              <span className="text-sm font-medium">{reactions[type] || 0}</span>
+              
+              {/* Animation overlay */}
+              {showReactionAnimation === type && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <Icon 
+                    size={24} 
+                    className={`${color} fill-current animate-bounce`}
+                  />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Share Modal */}
+      <ShareModal />
+    </>
+  );
+};
 
 export default function HomePage() {
   return (
@@ -243,6 +727,9 @@ export default function HomePage() {
             <span className="text-sm">Shirley Wu, Michel Galley</span>
           </div>
         </div>
+        
+        {/* Viewer System Component */}
+        <ViewerSystem />
       </div>
 
       {/* Blog Content */}
