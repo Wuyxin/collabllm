@@ -520,52 +520,19 @@ const ViewerSystem = () => {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3 border-y border-gray-100">
-        {/* Viewer Count */}
-        <div className="flex items-center gap-2 text-gray-600">
-          <Eye size={18} />
-          <span className="font-medium">{viewCount.toLocaleString()}</span>
-          <span className="text-sm">views</span>
-          <div className="hidden sm:block w-1 h-1 bg-green-500 rounded-full animate-pulse ml-1" title="Live updates enabled" />
-        </div>
-
-        {/* Reactions */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3">
+        {/* Share Button Only */}
         <div className="flex items-center gap-2">
-          <span className="text-gray-600 text-sm mr-2">React:</span>
-          {reactionButtons.map(({ type, icon: Icon, color, label }) => (
-            <button
-              key={type}
-              onClick={() => handleReaction(type)}
-              className={`
-                relative flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all duration-200 hover:scale-105
-                ${userReactions.has(type) 
-                  ? `${color} bg-gray-50 border-current` 
-                  : 'text-gray-500 border-gray-300 hover:border-gray-400'
-                }
-                ${showReactionAnimation === type ? 'animate-pulse' : ''}
-              `}
-              title={label}
-            >
-              <Icon 
-                size={16} 
-                className={userReactions.has(type) ? 'fill-current' : ''} 
-              />
-              <span className="text-sm font-medium">{reactions[type as ReactionType] || 0}</span>
-              
-              {/* Animation overlay */}
-              {showReactionAnimation === type && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <Icon 
-                    size={24} 
-                    className={`${color} fill-current animate-bounce`}
-                  />
-                </div>
-              )}
-            </button>
-          ))}
+          <button
+            onClick={() => handleReaction('share')}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 hover:border-gray-400 text-gray-500 hover:text-green-500 transition-all duration-200 hover:scale-105"
+            title="Share this article"
+          >
+            <Share2 size={16} />
+            <span className="text-sm font-medium">Share</span>
+          </button>
         </div>
       </div>
-      
       {/* Share Modal */}
       <ShareModal />
     </>
@@ -812,10 +779,11 @@ export default function HomePage() {
             <User size={16} />
             <span className="text-sm">Shirley Wu, Michel Galley</span>
           </div>
+        <ViewerSystem />
+          
         </div>
         
         {/* Viewer System Component */}
-        <ViewerSystem />
       </div>
 
       {/* Blog Content */}
