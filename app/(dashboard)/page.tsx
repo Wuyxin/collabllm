@@ -705,7 +705,7 @@ export default function HomePage() {
 
               {/* Quote 3 */}
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div className="text-orange-500 text-2xl mb-4">&ldquo;More Safe</div>
+                <div className="text-orange-500 text-2xl mb-4">&ldquo;Safer</div>
                 <p className="text-gray-600 italic mb-4">
                 The AI assistant told me why it <strong>wouldn't be helpful</strong> for this case.
                 </p>
