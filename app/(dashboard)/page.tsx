@@ -572,7 +572,7 @@ export default function HomePage() {
             </div>
             
             <div className="text-xl font-bold">
-              <span className="text-orange-600">ICML 2025 Oral (1.0% of all submissions)</span>
+              <span className="text-orange-600">ICML 2025 Outstanding Paper</span>
             </div>
           </div>
         </div>
@@ -593,7 +593,7 @@ export default function HomePage() {
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <a
-                  href="https://huggingface.co/spaces/collabllm/CollabLLM-Llama-3.1-8B-Instruct"
+                  href="https://huggingface.co/collabllm"
                   target="_blank"
                 >
                   <Button
@@ -601,7 +601,7 @@ export default function HomePage() {
                     variant="outline"
                     className="text-lg rounded-full"
                   >
-                    Chat with CollabLLM (to be enabled)
+                    Try CollabLLM Models
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </a>
